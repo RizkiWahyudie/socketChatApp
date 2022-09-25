@@ -1,0 +1,127 @@
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+        position: relative;
+      }
+      #form {
+        position: fixed;
+        bottom: 0;
+        display: flex;
+        width: 100%;
+        margin: 0;
+        justify-content: center;
+      }
+      #input {
+        border: none;
+        padding: 0.75rem 1rem;
+        flex: 95%;
+        border-radius: 2rem;
+        background-color: rgb(241 245 249);
+        margin: 0.5rem 0.25rem 1rem 1rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      }
+      #input:focus {
+        outline: none;
+      }
+      #form > button {
+        background: rgb(71 85 105);
+        border: none;
+        padding: 0 0.85rem 0 1rem;
+        margin: 0.5rem 1rem 1rem 0.25rem;
+        border-radius: 10000px;
+        outline: none;
+        color: #fff;
+        flex: 5%;
+        cursor: pointer;
+      }
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 3rem;
+      }
+      #messages > li {
+        padding: 0.5rem 1rem;
+        margin: 1rem 1rem 0 1rem;
+        background-color: rgb(241 245 249);
+        border-radius: 20px;
+      }
+      /* #messages > li:nth-child(odd) {
+        background: #efefef;
+      } */
+      #messages > .float-right {
+        /* border: 1px solid red; */
+        display: flex;
+        justify-content: end;
+        background: rgb(88, 98, 112);
+        color: #fff;
+      }
+      @media (min-width: 640px) {
+        body {
+          max-width: 600px;
+          margin: 0 auto !important; 
+        }
+        #form {
+          bottom: 1rem;
+          width: 600px;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input placeholder="Ketik pesan" id="input" autocomplete="off" />
+      <button><i class="uil uil-message" class="btnIcon"></i></button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const socket = io();
+      const messages = document.getElementById("messages");
+
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        // jika input mempunyai value atau tidak kosong
+        if (input.value) {
+          // socket.emit buat memancarkan pesan dgn nama event "chat message" yg diinput dari yg ngirim pesan
+          socket.emit("chat message", input.value);
+          // kita buat tag html "li"
+          const item = document.createElement("li");
+
+          // kemudian tag tersebut diisi sesuai inputan user
+          // .textContent untuk mengisi konten teks kedalam tag html
+          item.textContent = input.value;
+          // .appendChild untuk menambahkan elemen didalam tag variabel message yaitu tag ul
+          // ditambahkan tag li yang berisi inputan user
+          messages.appendChild(item);
+          // mereset value input kembali kosong
+          input.value = "";
+        }
+      });
+
+      // socket.on buat menerima pesan dengan nama event "broadcast" dari emitter/pengirim pesan
+      socket.on("broadcast", function (msg) {
+        console.log(msg);
+        
+        const item = document.createElement("li");
+          item.classList.add('float-right')
+          item.textContent = msg;
+          messages.appendChild(item);
+          // console.log(input);
+          input.value = "";
+      });
+    </script>
+  </body>
+</html>
